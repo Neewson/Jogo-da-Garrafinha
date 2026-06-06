@@ -1,0 +1,6 @@
+{
+  "name": "Jogo da Garrafinha",
+  "description": "Um jogo com física realista de lançar e equilibrar garrafas em pé, com espaço amplo de lançamento, conquistas e personalização.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
