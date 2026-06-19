@@ -7,6 +7,7 @@ import {
   SCENERY_PRESETS
 } from "./constants";
 import GameCanvas from "./components/GameCanvas";
+import InfoPages from "./components/InfoPages";
 import { toggleGlobalMute, playFanfareSound } from "./utils/audio";
 import { Sparkles, Trophy, Flame, Volume2, VolumeX, Sliders, RefreshCw, Trash2, HelpCircle, Settings, X, Lock, CheckCircle2 } from "lucide-react";
 
@@ -21,6 +22,29 @@ export default function App() {
   const [selectedSpinSetting, setSelectedSpinSetting] = useState<number>(6.5);
   const [manualForceMult, setManualForceMult] = useState<number>(1.0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeInfoTab, setActiveInfoTab] = useState<"privacy" | "terms" | "about" | "contact" | null>(null);
+
+  // Hash-based routing for Google AdSense indexing compatibility
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === "#privacy" || hash === "#/privacy") {
+        setActiveInfoTab("privacy");
+      } else if (hash === "#terms" || hash === "#/terms") {
+        setActiveInfoTab("terms");
+      } else if (hash === "#about" || hash === "#/about") {
+        setActiveInfoTab("about");
+      } else if (hash === "#contact" || hash === "#/contact") {
+        setActiveInfoTab("contact");
+      } else {
+        setActiveInfoTab(null);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   const [customBottleConfigs, setCustomBottleConfigs] = useState<Record<BottleID, BottleConfig>>(() => {
     try {
@@ -743,10 +767,52 @@ export default function App() {
         </div>
       )}
 
-      {/* ULTRA SLIM FOOTER - Hidden on very small screens to save valuable height */}
-      <footer className="py-2 border-t border-slate-900 bg-slate-950 text-center text-[10px] text-slate-600 hidden sm:block">
-        <p>© 2026 Jogo da Garrafinha. Física de Corpo Rígido 2D de alta sensibilidade.</p>
+      {/* DISCRETE FOOTER - Crucial for Google AdSense indexation & clean look */}
+      <footer className="py-2.5 sm:py-3.5 border-t border-slate-900 bg-slate-950 text-center text-[10px] text-slate-500 font-sans" id="adsense-compliant-footer">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+          <p>© 2026 Jogo da Garrafinha Oficial. Física Computacional 2D de Alta Fidelidade.</p>
+          <div className="flex flex-wrap justify-center items-center gap-2.5 text-[9px] sm:text-[10px] text-slate-400 font-semibold tracking-wide uppercase">
+            <a 
+              href="#privacy" 
+              onClick={(e) => { e.preventDefault(); setActiveInfoTab("privacy"); window.location.hash = "privacy"; }} 
+              className="hover:text-indigo-400 cursor-pointer hover:underline transition-all"
+            >
+              Política de Privacidade
+            </a>
+            <span className="text-slate-800">•</span>
+            <a 
+              href="#terms" 
+              onClick={(e) => { e.preventDefault(); setActiveInfoTab("terms"); window.location.hash = "terms"; }} 
+              className="hover:text-indigo-400 cursor-pointer hover:underline transition-all"
+            >
+              Termos de Uso
+            </a>
+            <span className="text-slate-800">•</span>
+            <a 
+              href="#about" 
+              onClick={(e) => { e.preventDefault(); setActiveInfoTab("about"); window.location.hash = "about"; }} 
+              className="hover:text-indigo-400 cursor-pointer hover:underline transition-all"
+            >
+              Sobre o Simulador
+            </a>
+            <span className="text-slate-800">•</span>
+            <a 
+              href="#contact" 
+              onClick={(e) => { e.preventDefault(); setActiveInfoTab("contact"); window.location.hash = "contact"; }} 
+              className="hover:text-indigo-400 cursor-pointer hover:underline transition-all"
+            >
+              Contato & Suporte
+            </a>
+          </div>
+        </div>
       </footer>
+
+      {/* RENDER DYNAMIC ADSENSE INFO PAGES */}
+      <InfoPages 
+        activeTab={activeInfoTab} 
+        onClose={() => { setActiveInfoTab(null); window.location.hash = ""; }} 
+        onNavigate={(tab) => { setActiveInfoTab(tab); window.location.hash = tab; }} 
+      />
 
     </div>
   );
