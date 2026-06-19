@@ -174,8 +174,12 @@ export default function GameCanvas({
     const groundY = canvas.height - 40;
     const body = bottleRef.current;
 
+    const h = bottleConfig.height;
+    const comYShift = h * (0.5 - bottleConfig.liquidRatio * 0.65);
+    const botY = h / 2 - comYShift;
+
     body.x = 200 + Math.random() * 50; // Place on the left
-    body.y = groundY - bottleConfig.height / 2;
+    body.y = groundY - botY;
     body.vx = 0;
     body.vy = 0;
     body.theta = 0;
@@ -207,8 +211,12 @@ export default function GameCanvas({
       // Relocate bottle if it spawns or resets during resize
       const body = bottleRef.current;
       if (!body.hasBeenThrown || body.y > h) {
+        const hBot = bottleConfig.height;
+        const comYShift = hBot * (0.5 - bottleConfig.liquidRatio * 0.65);
+        const botY = hBot / 2 - comYShift;
+
         body.x = w * 0.25;
-        body.y = h - 40 - bottleConfig.height / 2;
+        body.y = h - 40 - botY;
         body.vx = 0;
         body.vy = 0;
         body.theta = 0;
@@ -268,12 +276,15 @@ export default function GameCanvas({
 
     const pos = getPointerPos(e);
     const groundY = canvasDimensions.height - 40;
+    const h = bottleConfig.height;
+    const comYShift = h * (0.5 - bottleConfig.liquidRatio * 0.65);
+    const botY = h / 2 - comYShift;
 
     // We allow grabbing from literally ANY point on the screen (the bottle snaps to the finger/mouse)
     body.isDragging = true;
     setIsCurrentlyDragging(true);
     body.x = pos.x;
-    body.y = Math.min(pos.y, groundY - bottleConfig.height / 2);
+    body.y = Math.min(pos.y, groundY - botY);
     body.vx = 0;
     body.vy = 0;
     body.omega = 0;
@@ -312,10 +323,13 @@ export default function GameCanvas({
     }
 
     const groundY = canvasDimensions.height - 40;
+    const h = bottleConfig.height;
+    const comYShift = h * (0.5 - bottleConfig.liquidRatio * 0.65);
+    const botY = h / 2 - comYShift;
 
     // Move bottle to match current position (keep it above the ground line)
     body.x = pos.x;
-    body.y = Math.min(pos.y, groundY - bottleConfig.height / 2);
+    body.y = Math.min(pos.y, groundY - botY);
 
     // Dynamic visual tilt proportional to horizontal velocity to make dragging feel alive
     const dx = pos.x - pointer.history[0].x;
@@ -388,7 +402,6 @@ export default function GameCanvas({
         // Stat updates
         onUpdateStats({
           totalThrows: stats.totalThrows + 1,
-          currentStreak: 0, 
         });
       } else {
         resetBottlePosition();
@@ -465,7 +478,7 @@ export default function GameCanvas({
       const body = bottleRef.current;
 
       // PHYSICS UPDATE
-      if (!body.isDragging && !body.shattered) {
+      if (!body.isDragging && !body.shattered && body.hasBeenThrown) {
         // Apply Gravity
         body.vy += physicsSettings.gravity * dt;
 
@@ -778,6 +791,9 @@ export default function GameCanvas({
               // --- FAIL LANDING ---
               body.hasBeenThrown = false;
               body.restTimer = 0;
+              body.vx = 0;
+              body.vy = 0;
+              body.omega = 0;
               playFailSound();
 
               setGameStateLabel("Caiu deitado! Tente denovo com carinho ☝");

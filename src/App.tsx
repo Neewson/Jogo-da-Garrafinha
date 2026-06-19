@@ -355,7 +355,7 @@ export default function App() {
       </header>
 
       {/* DETAILED GAME DASHBOARD GRID */}
-      <main className="max-w-7xl mx-auto w-full p-1.5 sm:p-4 flex-1 flex flex-col gap-1.5 sm:gap-3 overflow-hidden" id="game-dashboard-main-content">
+      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1.5 sm:p-4 flex-1 flex flex-col gap-1.5 sm:gap-3 overflow-hidden" id="game-dashboard-main-content">
         
         {/* Help Panel floating absolute modal dialog so it doesn't take vertical space from the canvas! */}
         {showHelp && (
@@ -390,7 +390,7 @@ export default function App() {
         )}
 
         {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE */}
-        <div className="w-full flex-1 flex flex-col min-h-0" id="center-broad-canvas-space">
+        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[380px] sm:max-h-[460px] md:max-h-[500px] flex flex-col min-h-0 px-1 sm:px-4 my-auto" id="center-broad-canvas-space">
           <GameCanvas
             currentBottleId={currentBottleId}
             customBottleConfig={currentBottleConfig}
