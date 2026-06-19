@@ -11,6 +11,7 @@ import {
 
 interface GameCanvasProps {
   currentBottleId: BottleID;
+  customBottleConfig: BottleConfig;
   physicsSettings: PhysicsSettings;
   currentSceneryId: string;
   stats: GameStats;
@@ -38,6 +39,7 @@ interface Particle {
 
 export default function GameCanvas({
   currentBottleId,
+  customBottleConfig,
   physicsSettings,
   currentSceneryId,
   stats,
@@ -52,7 +54,7 @@ export default function GameCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Get current active preset objects
-  const bottleConfig = BOTTLE_PRESETS[currentBottleId];
+  const bottleConfig = customBottleConfig;
   const scenery = SCENERY_PRESETS.find(s => s.id === currentSceneryId) || SCENERY_PRESETS[0];
 
   // Game state
@@ -219,12 +221,12 @@ export default function GameCanvas({
     handleResize();
 
     return () => observer.disconnect();
-  }, [currentBottleId]);
+  }, [currentBottleId, customBottleConfig]);
 
   // Initial and subsequent position updates on bottle change
   useEffect(() => {
     resetBottlePosition();
-  }, [currentBottleId, currentSceneryId]);
+  }, [currentBottleId, currentSceneryId, customBottleConfig]);
 
   // Handle pointer interactions (mouse / touch)
   const getPointerPos = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => {
@@ -411,7 +413,7 @@ export default function GameCanvas({
       window.removeEventListener("mouseup", handleGlobalUp);
       window.removeEventListener("touchend", handleGlobalUp);
     };
-  }, [physicsSettings, currentBottleId, stats]);
+  }, [physicsSettings, currentBottleId, stats, customBottleConfig]);
 
   // Main Canvas Physics & Animation Loop
   useEffect(() => {
@@ -983,7 +985,7 @@ export default function GameCanvas({
     return () => {
       cancelAnimationFrame(animFrameId);
     };
-  }, [physicsSettings, currentBottleId, currentSceneryId, stats, selectedSpinSetting, manualForceMult]);
+  }, [physicsSettings, currentBottleId, currentSceneryId, stats, selectedSpinSetting, manualForceMult, customBottleConfig]);
 
   return (
     <div className="flex flex-col h-full bg-slate-950 relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800" id="game-canvas-wrapper">

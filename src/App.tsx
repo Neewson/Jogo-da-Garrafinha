@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BottleID, GameStats, PhysicsSettings, Achievement } from "./types";
+import { BottleID, BottleConfig, GameStats, PhysicsSettings, Achievement } from "./types";
 import { 
   DEFAULT_PHYSICS_SETTINGS, 
   DEFAULT_ACHIEVEMENTS, 
@@ -20,6 +20,19 @@ export default function App() {
   const [showSettingsDrawer, setShowSettingsDrawer] = useState<boolean>(false);
   const [selectedSpinSetting, setSelectedSpinSetting] = useState<number>(6.5);
   const [manualForceMult, setManualForceMult] = useState<number>(1.0);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const [customBottleConfigs, setCustomBottleConfigs] = useState<Record<BottleID, BottleConfig>>(() => {
+    try {
+      const saved = localStorage.getItem("bottle_flip_custom_configs");
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn("Could not load custom bottle configs", e);
+    }
+    return JSON.parse(JSON.stringify(BOTTLE_PRESETS));
+  });
 
   const [physicsSettings, setPhysicsSettings] = useState<PhysicsSettings>(DEFAULT_PHYSICS_SETTINGS);
 
@@ -63,6 +76,27 @@ export default function App() {
       const savedScenery = localStorage.getItem("bottle_flip_active_scenery");
       if (savedScenery) {
         setCurrentSceneryId(savedScenery);
+      }
+
+      // Load additional personalized configurations if saved previously
+      const savedCustomConfigs = localStorage.getItem("bottle_flip_custom_configs");
+      if (savedCustomConfigs) {
+        setCustomBottleConfigs(JSON.parse(savedCustomConfigs));
+      }
+
+      const savedPhysics = localStorage.getItem("bottle_flip_physics_settings");
+      if (savedPhysics) {
+        setPhysicsSettings(JSON.parse(savedPhysics));
+      }
+
+      const savedSpin = localStorage.getItem("bottle_flip_selected_spin");
+      if (savedSpin) {
+        setSelectedSpinSetting(JSON.parse(savedSpin));
+      }
+
+      const savedForce = localStorage.getItem("bottle_flip_manual_force");
+      if (savedForce) {
+        setManualForceMult(JSON.parse(savedForce));
       }
     } catch (e) {
       console.warn("Could not load game state from localStorage", e);
@@ -140,7 +174,68 @@ export default function App() {
     setPhysicsSettings(DEFAULT_PHYSICS_SETTINGS);
   };
 
-  const currentBottleConfig = BOTTLE_PRESETS[currentBottleId];
+  const handleDecreaseWater = () => {
+    setCustomBottleConfigs((prev) => {
+      const currentVal = prev[currentBottleId]?.liquidRatio ?? 0.35;
+      const newVal = Math.max(0, parseFloat((currentVal - 0.05).toFixed(2)));
+      return {
+        ...prev,
+        [currentBottleId]: {
+          ...prev[currentBottleId],
+          liquidRatio: newVal,
+        },
+      };
+    });
+  };
+
+  const handleIncreaseWater = () => {
+    setCustomBottleConfigs((prev) => {
+      const currentVal = prev[currentBottleId]?.liquidRatio ?? 0.35;
+      const newVal = Math.min(1.0, parseFloat((currentVal + 0.05).toFixed(2)));
+      return {
+        ...prev,
+        [currentBottleId]: {
+          ...prev[currentBottleId],
+          liquidRatio: newVal,
+        },
+      };
+    });
+  };
+
+  const handleSaveSettings = () => {
+    try {
+      localStorage.setItem("bottle_flip_custom_configs", JSON.stringify(customBottleConfigs));
+      localStorage.setItem("bottle_flip_physics_settings", JSON.stringify(physicsSettings));
+      localStorage.setItem("bottle_flip_selected_spin", JSON.stringify(selectedSpinSetting));
+      localStorage.setItem("bottle_flip_manual_force", JSON.stringify(manualForceMult));
+      
+      setToastMessage("Ajustes salvos com sucesso! 💾");
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (e) {
+      console.error(e);
+      setToastMessage("Erro ao salvar ajustes.");
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const handleResetToDefaultSettings = () => {
+    if (window.confirm("Deseja realmente restaurar todas as configurações para o padrão original?")) {
+      setCustomBottleConfigs(JSON.parse(JSON.stringify(BOTTLE_PRESETS)));
+      setPhysicsSettings(DEFAULT_PHYSICS_SETTINGS);
+      setSelectedSpinSetting(6.5);
+      setManualForceMult(1.0);
+
+      localStorage.removeItem("bottle_flip_custom_configs");
+      localStorage.removeItem("bottle_flip_physics_settings");
+      localStorage.removeItem("bottle_flip_selected_spin");
+      localStorage.removeItem("bottle_flip_manual_force");
+
+      setToastMessage("Configurações padrão restauradas! 🔄");
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const currentBottleConfig = customBottleConfigs[currentBottleId] || BOTTLE_PRESETS[currentBottleId];
 
   return (
     <div className="h-[100dvh] w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col overflow-hidden" id="main-bottle-game-app">
@@ -263,10 +358,18 @@ export default function App() {
           </div>
         )}
 
+        {/* Toast Notification Banner */}
+        {toastMessage && (
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-slate-900 border border-emerald-500/50 text-emerald-300 font-extrabold py-2 px-5 rounded-2xl shadow-xl z-50 animate-bounce flex items-center gap-2 text-xs sm:text-xs">
+            <span className="text-emerald-400">✨</span> {toastMessage}
+          </div>
+        )}
+
         {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE */}
         <div className="w-full flex-1 flex flex-col min-h-0" id="center-broad-canvas-space">
           <GameCanvas
             currentBottleId={currentBottleId}
+            customBottleConfig={currentBottleConfig}
             physicsSettings={physicsSettings}
             currentSceneryId={currentSceneryId}
             stats={stats}
@@ -354,6 +457,63 @@ export default function App() {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Section 1.5: Adjust Water level */}
+              <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800 space-y-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] uppercase tracking-widest font-extrabold text-indigo-400 font-mono">💦 Nível de Água (Customizado)</span>
+                  <span className="text-xs font-mono font-bold text-indigo-300">
+                    {Math.round((currentBottleConfig.liquidRatio ?? 0) * 100)}%
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  {/* Visual water level glass indicator */}
+                  <div className="w-12 h-16 border border-slate-700 rounded-b-lg relative bg-slate-950/80 overflow-hidden flex items-end shrink-0">
+                    {/* Cap */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-1 bg-indigo-500 rounded-t" />
+                    {/* Water */}
+                    <div 
+                      className="w-full bg-[#3b82f6]/80 rounded-b-sm transition-all duration-300 relative border-t border-blue-300"
+                      style={{ height: `${(currentBottleConfig.liquidRatio ?? 0) * 100}%` }}
+                    >
+                      {/* Water reflection bubbles/waves */}
+                      {(currentBottleConfig.liquidRatio ?? 0) > 0 && (
+                        <div className="absolute inset-x-0 top-0.5 h-0.5 bg-white/40 animate-pulse" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleDecreaseWater}
+                        disabled={(currentBottleConfig.liquidRatio ?? 0) <= 0}
+                        className="flex-1 py-1 px-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-slate-100 font-extrabold rounded-lg text-xs cursor-pointer select-none border border-slate-750 transition-all text-center flex items-center justify-center gap-1"
+                        id="btn-decrease-water"
+                      >
+                        - Menos Água
+                      </button>
+                      <button
+                        onClick={handleIncreaseWater}
+                        disabled={(currentBottleConfig.liquidRatio ?? 0) >= 1.0}
+                        className="flex-1 py-1 px-3 bg-indigo-600 hover:bg-indigo-550 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white font-extrabold rounded-lg text-xs cursor-pointer select-none transition-all text-center flex items-center justify-center gap-1"
+                        id="btn-increase-water"
+                      >
+                        + Mais Água
+                      </button>
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 leading-tight">
+                      {currentBottleConfig.liquidRatio <= 0.1 
+                        ? "⚠️ Quase sem água! Gira super leve, mas quica muito e é extremamente instável ao pousar."
+                        : currentBottleConfig.liquidRatio >= 0.8 
+                        ? "🐳 Garrafa cheia! É pesada para girar, mas amortece bem e se estabiliza rapidamente."
+                        : "⚖️ Nível moderado de água. Perfeito para manter o centro de gravidade ideal."}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -540,6 +700,30 @@ export default function App() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Save / Restore custom settings */}
+              <div className="bg-slate-950/40 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+                <span className="block text-[11px] uppercase tracking-widest font-extrabold text-indigo-400 font-mono">💾 Ajustes e Configurações</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleSaveSettings}
+                    className="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-550 text-white font-bold rounded-xl text-xs cursor-pointer transition-all flex items-center justify-center gap-1 shadow-lg"
+                    id="btn-save-custom-settings"
+                  >
+                    Salvar Ajustes
+                  </button>
+                  <button
+                    onClick={handleResetToDefaultSettings}
+                    className="py-2.5 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-350 font-bold rounded-xl text-xs cursor-pointer transition-all flex items-center justify-center gap-1"
+                    id="btn-default-custom-settings"
+                  >
+                    Configuração Padrão
+                  </button>
+                </div>
+                <p className="text-[9px] text-slate-500 text-center leading-normal">
+                  Salva ou restaura o nível de água customizado, rotação, força e gravidade no navegador.
+                </p>
               </div>
 
               {/* Section 7: Factory Settings Reset */}
