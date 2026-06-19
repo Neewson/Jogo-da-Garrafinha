@@ -8,6 +8,50 @@ interface InfoPagesProps {
 }
 
 export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesProps) {
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [subject, setSubject] = React.useState("feedback");
+  const [message, setMessage] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitStatus, setSubmitStatus] = React.useState<"idle" | "success" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/jogodagarrafinha@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          Nome: name,
+          Email: email,
+          Assunto: subject,
+          Mensagem: message,
+          _subject: `Contato Jogo da Garrafinha: ${subject}`
+        })
+      });
+
+      if (response.ok) {
+        setSubmitStatus("success");
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar email", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!activeTab) return null;
 
   return (
@@ -225,15 +269,11 @@ export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesP
                 </div>
               </div>
 
-              {/* Simulated Form for interactivity to appease AdSense guidelines by having actual interactive tools */}
-              <div className="bg-slate-9003 p-4 sm:p-5 rounded-xl border border-slate-800/80 mt-4 space-y-3">
+              {/* Formulário de contato dinâmico real integrado via FormSubmit.co */}
+              <div className="bg-slate-900/60 p-4 sm:p-5 rounded-xl border border-slate-800 mt-4 space-y-3">
                 <span className="block font-bold text-white text-xs sm:text-sm">Envie uma mensagem direta</span>
                 <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    alert("Mensagem enviada com sucesso! Agradecemos pelo seu feedback.");
-                    (e.target as HTMLFormElement).reset();
-                  }}
+                  onSubmit={handleSubmit}
                   className="space-y-3"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -242,6 +282,8 @@ export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesP
                       <input 
                         type="text" 
                         required 
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         placeholder="Ex: Nilson Camargo" 
                         className="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" 
                       />
@@ -251,6 +293,8 @@ export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesP
                       <input 
                         type="email" 
                         required 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Ex: nilson@gmail.com" 
                         className="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" 
                       />
@@ -258,11 +302,15 @@ export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesP
                   </div>
                   <div>
                     <label className="block text-[10px] text-slate-400 uppercase font-mono font-bold mb-1">Assunto / Tipo de Solicitação</label>
-                    <select className="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
-                      <option value="feedback">Enviar Feedback & Sugestões de Recursos</option>
-                      <option value="support">Reportar Bug / Problema com Física</option>
-                      <option value="business">Proposta de Anúncio / Negócios</option>
-                      <option value="privacy">Dúvidas sobre Privacidade (Google Ads)</option>
+                    <select 
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="Feedback">Enviar Feedback & Sugestões de Recursos</option>
+                      <option value="Suporte do Jogo">Reportar Bug / Problema com Física</option>
+                      <option value="Anúncios e Negócios">Proposta de Anúncio / Negócios</option>
+                      <option value="Privacidade e Ads">Dúvidas sobre Privacidade (Google Ads)</option>
                     </select>
                   </div>
                   <div>
@@ -270,16 +318,38 @@ export default function InfoPages({ activeTab, onClose, onNavigate }: InfoPagesP
                     <textarea 
                       required 
                       rows={3} 
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       placeholder="Escreva sua mensagem detalhadamente aqui..." 
                       className="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" 
                     />
                   </div>
+
+                  {submitStatus === "success" && (
+                    <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-[11px] font-semibold">
+                      ✨ Sua mensagem foi enviada com sucesso! Ela chegará diretamente em <strong>jogodagarrafinha@gmail.com</strong>. Obrigado!
+                    </div>
+                  )}
+
+                  {submitStatus === "error" && (
+                    <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-450 text-[11px] font-semibold">
+                      ❌ Ocorreu um problema ao enviar. Por favor, envie diretamente para <strong>jogodagarrafinha@gmail.com</strong>.
+                    </div>
+                  )}
                   
                   <button 
                     type="submit" 
-                    className="py-2 px-4 bg-indigo-600 hover:bg-indigo-550 text-white font-bold rounded-lg text-xs cursor-pointer transition-all shadow-md flex items-center justify-center"
+                    disabled={isSubmitting}
+                    className="py-2 px-4 bg-indigo-600 hover:bg-indigo-550 disabled:opacity-50 text-white font-bold rounded-lg text-xs cursor-pointer transition-all shadow-md flex items-center justify-center gap-2"
                   >
-                    Enviar Mensagem
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <span>Enviar Mensagem</span>
+                    )}
                   </button>
                 </form>
               </div>
