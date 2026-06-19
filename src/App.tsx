@@ -390,7 +390,7 @@ export default function App() {
         )}
 
         {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE */}
-        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[500px] sm:max-h-[580px] md:max-h-[660px] flex flex-col min-h-0 px-1 sm:px-4 my-auto" id="center-broad-canvas-space">
+        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[560px] sm:max-h-[660px] md:max-h-[760px] lg:max-h-[820px] flex flex-col min-h-0 px-1 sm:px-4 my-auto" id="center-broad-canvas-space">
           <GameCanvas
             currentBottleId={currentBottleId}
             customBottleConfig={currentBottleConfig}
