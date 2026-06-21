@@ -409,7 +409,7 @@ export default function App() {
         </header>
 
       {/* DETAILED GAME DASHBOARD GRID */}
-      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1 sm:p-4 flex-1 flex flex-col gap-3 overflow-hidden min-h-0" id="game-dashboard-main-content">
+      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-3.5 sm:p-4 flex-1 flex flex-col gap-4 overflow-hidden min-h-0" id="game-dashboard-main-content">
         
         {/* Help Panel floating absolute modal dialog so it doesn't take vertical space from the canvas! */}
         {showHelp && (
