@@ -265,105 +265,151 @@ export default function App() {
   const currentBottleConfig = customBottleConfigs[currentBottleId] || BOTTLE_PRESETS[currentBottleId];
 
   return (
-    <div className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col overflow-y-auto" id="main-bottle-game-app">
+    <div className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col overflow-y-auto scroll-smooth" id="main-bottle-game-app">
       
-      {/* HEADER BAR - Ultra Slim, super responsive */}
-      <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur w-full py-2 px-3 sm:py-3 sm:px-6 sticky top-0 z-40 shadow-sm" id="game-headline-header">
-        <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-1.5 sm:gap-3">
-          
-          {/* Logo Brand */}
-          <div className="flex items-center space-x-2 sm:space-x-2.5">
-            <img 
-              src={appFavicon} 
-              alt="Logo Jogo da Garrafinha" 
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover shadow-md border border-slate-800 ring-2 ring-indigo-500/20 select-none animate-pulse-slow"
-              referrerPolicy="no-referrer"
-            />
-            <div>
-              <h1 className="text-sm sm:text-xl font-extrabold tracking-tight text-white font-sans whitespace-nowrap">
-                Jogo da Garrafinha
-              </h1>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Segure com o clique em qualquer parte da tela e arremesse com velocidade!
-              </p>
+      {/* SEÇÃO PRINCIPAL DE JOGABILIDADE - Ocupa exatamente a tela inteira (100dvh) no carregamento */}
+      <div className="w-full h-[100dvh] flex flex-col justify-between shrink-0 overflow-hidden" id="gameplay-viewport-container">
+        {/* HEADER BAR - Ultra Slim, super responsive */}
+        <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur w-full py-1.5 px-3 sm:py-3 sm:px-6 sticky top-0 z-40 shadow-sm" id="game-headline-header">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3">
+            
+            {/* Top Row: Brand on left, Action Buttons on right for mobile */}
+            <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+              <div className="flex items-center space-x-2 sm:space-x-2.5">
+                <img 
+                  src={appFavicon} 
+                  alt="Logo Jogo da Garrafinha" 
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover shadow-md border border-slate-800 ring-2 ring-indigo-500/20 select-none animate-pulse-slow shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+                <div>
+                  <h1 className="text-xs sm:text-xl font-extrabold tracking-tight text-white font-sans whitespace-nowrap">
+                    Jogo da Garrafinha
+                  </h1>
+                  <p className="text-[11px] text-slate-400 hidden sm:block">
+                    Segure com o clique em qualquer parte da tela e arremesse com velocidade!
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Actions (Audio / Help / Settings) - Visible on Mobile inline next to brand */}
+              <div className="flex items-center space-x-1 sm:hidden">
+                <button
+                  onClick={() => setShowSettingsDrawer(true)}
+                  className={`p-1.5 rounded-lg border cursor-pointer transition-all flex items-center ${
+                    showSettingsDrawer
+                      ? "bg-indigo-500/20 border-indigo-400 text-indigo-400"
+                      : "bg-slate-900/60 border-slate-850 hover:bg-slate-800 text-indigo-400"
+                  }`}
+                  title="Ajustar física"
+                  id="mobile-settings-btn"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={handleToggleMute}
+                  className={`p-1.5 rounded-lg border cursor-pointer transition-all ${
+                    isMuted
+                      ? "bg-rose-500/15 border-rose-500/25 text-rose-400"
+                      : "bg-slate-900/60 border-slate-800 text-emerald-400"
+                  }`}
+                  id="mobile-sound-btn"
+                  title="Mudar som"
+                >
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                </button>
+
+                <button
+                  onClick={() => setShowHelp(!showHelp)}
+                  className={`p-1.5 rounded-lg border cursor-pointer transition-all ${
+                    showHelp
+                      ? "bg-sky-500/20 border-sky-400 text-sky-400"
+                      : "bg-slate-900/60 border-slate-800 text-slate-400"
+                  }`}
+                  id="mobile-help-btn"
+                  title="Ajuda"
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
+
+            {/* Bottom Row / Floating Stats HUD + Desktop Buttons */}
+            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 w-full sm:w-auto">
+              {/* Direct Score HUD - Takes full width on mobile so everything is clean and spaced out */}
+              <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start space-x-1 sm:space-x-3 bg-slate-900/80 border border-slate-800/80 px-2 sm:px-4 py-1 sm:py-1.5 rounded-2xl text-[9px] sm:text-sm">
+                <div className="text-center pr-1 sm:pr-3 border-r border-slate-800 flex-1 sm:flex-initial">
+                  <span className="block text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Arremessos</span>
+                  <span className="text-[10px] sm:text-sm font-extrabold text-slate-300 font-mono">{stats.totalThrows}</span>
+                </div>
+                <div className="text-center pr-1 sm:pr-3 border-r border-slate-800 flex-1 sm:flex-initial">
+                  <span className="block text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Acertos</span>
+                  <span className="text-[10px] sm:text-sm font-extrabold text-indigo-300 font-mono">{stats.successfulFlips}</span>
+                </div>
+                <div className="text-center pr-1 sm:pr-3 border-r border-slate-800 flex-1 sm:flex-initial">
+                  <span className="block text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Seq.</span>
+                  <span className="text-[10px] sm:text-sm font-extrabold text-amber-400 font-mono flex items-center justify-center gap-0.5">
+                    {stats.currentStreak} <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500 fill-amber-500" />
+                  </span>
+                </div>
+                <div className="text-center flex-1 sm:flex-initial">
+                  <span className="block text-[7px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Rec.</span>
+                  <span className="text-[10px] sm:text-sm font-extrabold text-yellow-500 font-mono flex items-center justify-center gap-0.5">
+                    {stats.highestStreak} <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-500 fill-yellow-500" />
+                  </span>
+                </div>
+              </div>
+
+              {/* Desktop Only Buttons Row */}
+              <div className="hidden sm:flex items-center space-x-1 sm:space-x-2">
+                <button
+                  onClick={() => setShowSettingsDrawer(true)}
+                  className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all flex items-center gap-1 ${
+                    showSettingsDrawer
+                      ? "bg-indigo-500/20 border-indigo-400 text-indigo-400"
+                      : "bg-slate-900/60 border-slate-850 hover:bg-slate-800 text-indigo-400"
+                  }`}
+                  title="Ajustar física, escolher garrafa e cenário"
+                  id="header-settings-btn"
+                >
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-xs font-bold leading-none">Ajustes</span>
+                </button>
+
+                <button
+                  onClick={handleToggleMute}
+                  className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all ${
+                    isMuted
+                      ? "bg-rose-500/15 border-rose-500/25 text-rose-400 hover:bg-rose-500/25"
+                      : "bg-slate-900/60 border-slate-800 hover:bg-slate-850 text-emerald-400"
+                  }`}
+                  title={isMuted ? "Sons desligados" : "Sons ligados"}
+                  id="header-sound-btn"
+                >
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                </button>
+
+                <button
+                  onClick={() => setShowHelp(!showHelp)}
+                  className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all ${
+                    showHelp
+                      ? "bg-sky-500/20 border-sky-400 text-sky-400"
+                      : "bg-slate-900/60 border-slate-800 hover:bg-slate-850 text-slate-400"
+                  }`}
+                  title="Como jogar"
+                  id="header-help-btn"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              </div>
+            </div>
+            
           </div>
-
-          {/* Clean HUD and Mute Controls - Tighter on mobile */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Direct Score HUD */}
-            <div className="flex items-center space-x-1.5 sm:space-x-3 bg-slate-900/80 border border-slate-800/80 px-2 sm:px-4 py-1 sm:py-1.5 rounded-2xl text-[10px] sm:text-sm">
-              <div className="text-center pr-1.5 sm:pr-3 border-r border-slate-800">
-                <span className="block text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Arremessos</span>
-                <span className="text-xs sm:text-sm font-extrabold text-slate-300 font-mono">{stats.totalThrows}</span>
-              </div>
-              <div className="text-center pr-1.5 sm:pr-3 border-r border-slate-800">
-                <span className="block text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Acertos</span>
-                <span className="text-xs sm:text-sm font-extrabold text-indigo-300 font-mono">{stats.successfulFlips}</span>
-              </div>
-              <div className="text-center pr-1.5 sm:pr-3 border-r border-slate-800">
-                <span className="block text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Seq.</span>
-                <span className="text-xs sm:text-sm font-extrabold text-amber-400 font-mono flex items-center justify-center gap-0.5">
-                  {stats.currentStreak} <Flame className="w-3 h-3 text-amber-500 fill-amber-500" />
-                </span>
-              </div>
-              <div className="text-center">
-                <span className="block text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Rec.</span>
-                <span className="text-xs sm:text-sm font-extrabold text-yellow-500 font-mono flex items-center justify-center gap-0.5">
-                  {stats.highestStreak} <Trophy className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Actions (Audio / Help / Settings) */}
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <button
-                onClick={() => setShowSettingsDrawer(true)}
-                className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all flex items-center gap-1 ${
-                  showSettingsDrawer
-                    ? "bg-indigo-500/20 border-indigo-400 text-indigo-400"
-                    : "bg-slate-900/60 border-slate-850 hover:bg-slate-800 text-indigo-450 hover:text-indigo-400"
-                }`}
-                title="Ajustar física, escolher garrafa e cenário"
-                id="header-settings-btn"
-              >
-                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-xs font-bold leading-none hidden md:inline">Ajustes</span>
-              </button>
-
-              <button
-                onClick={handleToggleMute}
-                className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all ${
-                  isMuted
-                    ? "bg-rose-500/15 border-rose-500/25 text-rose-400 hover:bg-rose-500/25"
-                    : "bg-slate-900/60 border-slate-800 hover:bg-slate-850 text-emerald-400"
-                }`}
-                title={isMuted ? "Sons desligados" : "Sons ligados"}
-                id="header-sound-btn"
-              >
-                {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              </button>
-
-              <button
-                onClick={() => setShowHelp(!showHelp)}
-                className={`p-1.5 sm:p-2 rounded-xl border cursor-pointer transition-all ${
-                  showHelp
-                    ? "bg-sky-500/20 border-sky-400 text-sky-400"
-                    : "bg-slate-900/60 border-slate-800 hover:bg-slate-850 text-slate-400"
-                }`}
-                title="Como jogar"
-                id="header-help-btn"
-              >
-                <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </button>
-            </div>
-          </div>
-          
-        </div>
-      </header>
+        </header>
 
       {/* DETAILED GAME DASHBOARD GRID */}
-      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1.5 sm:p-4 flex-1 flex flex-col gap-3 overflow-visible" id="game-dashboard-main-content">
+      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1 sm:p-4 flex-1 flex flex-col gap-3 overflow-hidden min-h-0" id="game-dashboard-main-content">
         
         {/* Help Panel floating absolute modal dialog so it doesn't take vertical space from the canvas! */}
         {showHelp && (
@@ -397,8 +443,8 @@ export default function App() {
           </div>
         )}
 
-        {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE */}
-        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[560px] sm:max-h-[660px] md:max-h-[760px] lg:max-h-[820px] flex flex-col min-h-0 px-1 sm:px-4 my-auto shrink-0" id="center-broad-canvas-space">
+        {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE - EXPANDED DOWNWARDS TO FILL VIEWPORT */}
+        <div className="w-full max-w-[960px] mx-auto flex-1 flex flex-col min-h-0 px-1 sm:px-4 mb-2 shrink-0" id="center-broad-canvas-space">
           <GameCanvas
             currentBottleId={currentBottleId}
             customBottleConfig={currentBottleConfig}
@@ -413,9 +459,12 @@ export default function App() {
             setManualForceMult={setManualForceMult}
           />
         </div>
+      </main>
+    </div>
 
-        {/* COMPREHENSIVE EDITORIAL RICH TEXT ARTICLE FOR GOOGLE ADSENSE COMPLIANCE - NOW ULTRA FUN & GAMIFIED & COLLAPSIBLE! */}
-        <section className="w-full max-w-[960px] mx-auto mt-8 sm:mt-12 mb-8 bg-slate-900/40 border border-slate-850 rounded-2xl p-6 sm:p-8 space-y-6 text-slate-300 leading-relaxed text-xs sm:text-sm shadow-xl" id="adsense-editorial-content">
+    {/* COMPREHENSIVE EDITORIAL RICH TEXT ARTICLE FOR GOOGLE ADSENSE COMPLIANCE - NOW ULTRA FUN & GAMIFIED & COLLAPSIBLE! */}
+    <div className="w-full px-4 sm:px-6 shrink-0" id="ads-section-wrapper">
+      <section className="w-full max-w-[960px] mx-auto mt-8 sm:mt-12 mb-8 bg-slate-900/40 border border-slate-850 rounded-2xl p-6 sm:p-8 space-y-6 text-slate-300 leading-relaxed text-xs sm:text-sm shadow-xl" id="adsense-editorial-content">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-indigo-400 mb-2">
@@ -557,8 +606,7 @@ export default function App() {
             </div>
           )}
         </section>
-
-      </main>
+      </div>
 
       {/* SETTINGS COLLAPSIBLE DRAWER PANEL OVERLAY */}
       {showSettingsDrawer && (
