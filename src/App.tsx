@@ -8,6 +8,8 @@ import {
 } from "./constants";
 import GameCanvas from "./components/GameCanvas";
 import InfoPages from "./components/InfoPages";
+// @ts-ignore
+import appFavicon from "./assets/images/app_favicon_1781882197290.jpg";
 import { toggleGlobalMute, playFanfareSound } from "./utils/audio";
 import { Sparkles, Trophy, Flame, Volume2, VolumeX, Sliders, RefreshCw, Trash2, HelpCircle, Settings, X, Lock, CheckCircle2 } from "lucide-react";
 
@@ -23,6 +25,7 @@ export default function App() {
   const [manualForceMult, setManualForceMult] = useState<number>(1.0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeInfoTab, setActiveInfoTab] = useState<"privacy" | "terms" | "about" | "contact" | null>(null);
+  const [isArticleExpanded, setIsArticleExpanded] = useState<boolean>(false);
 
   // Hash-based routing for Google AdSense indexing compatibility
   useEffect(() => {
@@ -262,7 +265,7 @@ export default function App() {
   const currentBottleConfig = customBottleConfigs[currentBottleId] || BOTTLE_PRESETS[currentBottleId];
 
   return (
-    <div className="h-[100dvh] w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col overflow-hidden" id="main-bottle-game-app">
+    <div className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white flex flex-col overflow-y-auto" id="main-bottle-game-app">
       
       {/* HEADER BAR - Ultra Slim, super responsive */}
       <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur w-full py-2 px-3 sm:py-3 sm:px-6 sticky top-0 z-40 shadow-sm" id="game-headline-header">
@@ -270,7 +273,12 @@ export default function App() {
           
           {/* Logo Brand */}
           <div className="flex items-center space-x-2 sm:space-x-2.5">
-            <span className="text-2xl sm:text-3xl filter drop-shadow animate-pulse select-none animate-bounce">🍾</span>
+            <img 
+              src={appFavicon} 
+              alt="Logo Jogo da Garrafinha" 
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover shadow-md border border-slate-800 ring-2 ring-indigo-500/20 select-none animate-pulse-slow"
+              referrerPolicy="no-referrer"
+            />
             <div>
               <h1 className="text-sm sm:text-xl font-extrabold tracking-tight text-white font-sans whitespace-nowrap">
                 Jogo da Garrafinha
@@ -355,7 +363,7 @@ export default function App() {
       </header>
 
       {/* DETAILED GAME DASHBOARD GRID */}
-      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1.5 sm:p-4 flex-1 flex flex-col gap-1.5 sm:gap-3 overflow-hidden" id="game-dashboard-main-content">
+      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-1.5 sm:p-4 flex-1 flex flex-col gap-3 overflow-visible" id="game-dashboard-main-content">
         
         {/* Help Panel floating absolute modal dialog so it doesn't take vertical space from the canvas! */}
         {showHelp && (
@@ -390,7 +398,7 @@ export default function App() {
         )}
 
         {/* MAXIMUM CENTRALIZED GAME PLAYING SPACE */}
-        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[560px] sm:max-h-[660px] md:max-h-[760px] lg:max-h-[820px] flex flex-col min-h-0 px-1 sm:px-4 my-auto" id="center-broad-canvas-space">
+        <div className="w-full max-w-[960px] mx-auto flex-1 max-h-[560px] sm:max-h-[660px] md:max-h-[760px] lg:max-h-[820px] flex flex-col min-h-0 px-1 sm:px-4 my-auto shrink-0" id="center-broad-canvas-space">
           <GameCanvas
             currentBottleId={currentBottleId}
             customBottleConfig={currentBottleConfig}
@@ -405,6 +413,150 @@ export default function App() {
             setManualForceMult={setManualForceMult}
           />
         </div>
+
+        {/* COMPREHENSIVE EDITORIAL RICH TEXT ARTICLE FOR GOOGLE ADSENSE COMPLIANCE - NOW ULTRA FUN & GAMIFIED & COLLAPSIBLE! */}
+        <section className="w-full max-w-[960px] mx-auto mt-8 sm:mt-12 mb-8 bg-slate-900/40 border border-slate-850 rounded-2xl p-6 sm:p-8 space-y-6 text-slate-300 leading-relaxed text-xs sm:text-sm shadow-xl" id="adsense-editorial-content">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-indigo-400 mb-2">
+                <span className="h-px w-8 bg-indigo-500/50"></span>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest font-mono">Guia de Elite & Dicas de Flippers</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                Como Dominar o Flip Perfeito: Segredos, Modos Divertidos e Desafios Lendários! 🍾🏆
+              </h2>
+            </div>
+            
+            <button
+              onClick={() => setIsArticleExpanded(!isArticleExpanded)}
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-300 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95 shadow-sm"
+              aria-expanded={isArticleExpanded}
+            >
+              {isArticleExpanded ? "Recolher Guia ⌃" : "Ler Guia de Jogo 📖"}
+            </button>
+          </div>
+
+          <p className="text-slate-400 leading-relaxed">
+            Tentando quebrar seu recorde atual ou impressionar seus amigos? O lendário <strong>Desafio de Girar a Garrafinha (Bottle Flip)</strong> que quebrou as visualizações da internet virou um jogo de arcade virtual super viciante! Aqui, você não precisa limpar a sujeira de água derramada no chão da cozinha se a garrafa quebrar: você pode treinar arremessos perfeitos de qualquer lugar pelo celular ou computador. Prepare os dedos, escolha sua garrafinha favorita e domine todos os truques secretos para se tornar o campeão supremo do placar!
+          </p>
+
+          {isArticleExpanded && (
+            <div className="space-y-8 pt-4 border-t border-slate-850 animate-fade-in">
+              {/* GRID: Fun Guides */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div className="space-y-3">
+                  <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                    <span className="text-indigo-400">🔥 01.</span> A Física Secreta do Controle Tátil
+                  </h3>
+                  <p className="text-slate-400">
+                    Para fazer a garrafinha pousar em pé de primeira, o toque na tela precisa seguir o ritmo certo da diversão. Quando você desliza o dedo ou segura o mouse para jogar, você controla o arco de voo e a força do torque. 
+                  </p>
+                  <p className="text-slate-450 text-[11px] sm:text-xs bg-slate-950/40 p-3 rounded-xl border border-slate-850">
+                    <strong>Dica Pro-Player:</strong> Arremessos mais curtos exigem menos rotação, enquanto lançamentos bem altos no céu dão tempo para a garrafa girar duas vezes (Double Flip!) antes de tocar o piso. Encontre o equilíbrio ideal!
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                    <span className="text-sky-450">⚡ 02.</span> Ajustes Customizados para Zueira Total
+                  </h3>
+                  <p className="text-slate-400">
+                    Quer deixar o jogo totalmente caótico e engraçado? No painel de controle (ícone de engrenagem), você pode customizar cada detalhe do simulador para criar os modos mais malucos que imaginar!
+                  </p>
+                  <p className="text-slate-450 text-[11px] sm:text-xs bg-slate-950/40 p-3 rounded-xl border border-slate-850">
+                    <strong>Ideia de Jogo:</strong> Coloque a Gravidade no mínimo e o Rebound (elasticidade) no máximo para ver a garrafinha ricochetear sem parar, parecendo uma bolinha de pinball espacial. A risada é garantida!
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-850/60"></div>
+
+              {/* Section: Tips/Tutorial */}
+              <div className="space-y-4">
+                <h3 className="text-sm sm:text-base font-extrabold text-white">
+                  Guia Rápido de Treino: Calibre Sua Garrafinha Favorita!  🎮
+                </h3>
+                <p className="text-slate-455 text-xs sm:text-sm">
+                  Cada campeão tem sua tática favorita de configuração. Confira as três formas de deixar a jogabilidade exatamente com a sua cara:
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                  <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 space-y-1.5">
+                    <span className="font-bold text-indigo-300 block text-xs sm:text-sm">🧪 Quantidade de Bebida</span>
+                    <p className="text-[11px] sm:text-xs text-slate-400">
+                      Defina a quantidade de líquido entre <strong>25% e 35%</strong> para ter o "pouso de ouro". Garrafinhas vazias saem pulando pela tela, e garrafinhas muito cheias caem como uma pedra sólida!
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-850 space-y-1.5">
+                    <span className="font-bold text-sky-300 block text-xs sm:text-sm">🌪️ Velocidade de Rotação (Spin)</span>
+                    <p className="text-[11px] sm:text-xs text-slate-400">
+                      Aumente o multiplicador de rotação para conseguir giros supersônicos no ar. Se você quer fazer manobras acrobáticas complexas e piruetas, esse é o indicador mais divertido!
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-955 p-4 rounded-xl border border-slate-850/80 space-y-1.5">
+                    <span className="font-bold text-purple-300 block text-xs sm:text-sm">🚀 Força Deslizante (Slide)</span>
+                    <p className="text-[11px] sm:text-xs text-slate-400">
+                      Controla o empurrão inicial do seu dedo. Combine arremessos rasos com velocidade alta para fazer a garrafa escorregar pelo chão e parar de pé no último segundo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-850/60"></div>
+
+              {/* FAQ Accordion Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm sm:text-base font-extrabold text-white">
+                  Perguntas Frequentes dos Flippers (FAQ)  💬
+                </h3>
+                <div className="space-y-3.5" id="adsense-editorial-faq">
+                  <div className="p-3.5 bg-slate-950/20 border border-slate-850/80 rounded-xl space-y-1">
+                    <span className="font-bold text-white text-xs sm:text-sm">Qual é a melhor garrafa para começar a jogar?</span>
+                    <p className="text-slate-450 text-[11px] sm:text-xs leading-normal">
+                      A garrafinha de Refrigerante Clássica ou a de Suco são ideais por possuírem base larga e maior aderência ao chão. Depois de pegar o jeito, tente encarar o desafio épico de equilibrar a Garrafa Térmica pesada ou o Caldeirão de Poções Mágicas!
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-950/20 border border-slate-850/80 rounded-xl space-y-1">
+                    <span className="font-bold text-white text-xs sm:text-sm">O que é a manobra "Equilíbrio Lendário" que dá 100 pontos?</span>
+                    <p className="text-slate-450 text-[11px] sm:text-xs leading-normal">
+                      É a proeza máxima do jogo: fazer a garrafa dar um giro completo e pousar de **tampa para baixo** (de cabeça para baixo)! Como a área da tampa é minúscula e redonda, é extremamente raro e exige precisão cirúrgica de força.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 bg-slate-950/20 border border-slate-850/80 rounded-xl space-y-1">
+                    <span className="font-bold text-white text-xs sm:text-sm">O jogo é totalmente gratuito para jogar no celular?</span>
+                    <p className="text-slate-450 text-[11px] sm:text-xs leading-normal">
+                      Sim! Nosso jogo foi projetado do zero para rodar perfeitamente em qualquer smartphone ou PC fraco sem downloads ou instalações. Ele é leve, otimizado a 60 FPS e desenvolvido exclusivamente para proporcionar diversão limpa e direta nas suas pausas do dia a dia.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl text-center space-y-2">
+                <h4 className="font-extrabold text-white text-xs sm:text-sm">Gostou do Jogo da Garrafinha? Compartilhe a diversão! 🤩</h4>
+                <p className="text-[11px] text-slate-450 max-w-lg mx-auto">
+                  Chame sua galera e faça desafios de quem consegue a maior pontuação de combos em sequência offline! Salve o link nos favoritos e jogue em qualquer lugar.
+                </p>
+              </div>
+
+              <div className="flex justify-center pt-2">
+                <button
+                  onClick={() => {
+                    setIsArticleExpanded(false);
+                    // Scroll back to the editorial section top
+                    document.getElementById("adsense-editorial-content")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-750 text-slate-300 text-xs font-bold transition-all duration-200 cursor-pointer active:scale-95"
+                >
+                  Recolher Guia de Jogo ⌃
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
 
       </main>
 
