@@ -1007,7 +1007,7 @@ export default function GameCanvas({
     <div className="flex flex-col h-full bg-slate-950 relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800" id="game-canvas-wrapper">
       
       {/* Top Telemetry Header Area - Highly Responsive spacing */}
-      <div className="bg-slate-900 border-b border-slate-800 px-3 py-2 sm:px-6 sm:py-3.5 flex justify-between items-center z-10 gap-2">
+      <div className="bg-slate-900 border-b border-slate-800 px-3 py-2.5 sm:px-6 sm:py-3.5 flex justify-between items-center z-10 gap-2">
         <div className="hidden sm:flex items-center space-x-2.5">
           <div className="w-3.5 h-3.5 rounded-full bg-indigo-500 animate-pulse" />
           <span className="text-xs font-bold tracking-wider text-slate-300 font-mono">SIMULADOR COMPORTAMENTAL</span>

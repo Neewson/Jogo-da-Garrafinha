@@ -270,8 +270,8 @@ export default function App() {
       {/* SEÇÃO PRINCIPAL DE JOGABILIDADE - Ocupa exatamente a tela inteira (100dvh) no carregamento */}
       <div className="w-full h-[100dvh] flex flex-col justify-between shrink-0 overflow-hidden" id="gameplay-viewport-container">
         {/* HEADER BAR - Ultra Slim, super responsive */}
-        <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur w-full py-1.5 px-3 sm:py-3 sm:px-6 sticky top-0 z-40 shadow-sm" id="game-headline-header">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3">
+        <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur w-full py-2.5 px-3 sm:py-3 sm:px-6 sticky top-0 z-40 shadow-sm" id="game-headline-header">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
             
             {/* Top Row: Brand on left, Action Buttons on right for mobile */}
             <div className="flex items-center justify-between w-full sm:w-auto gap-2">
@@ -409,7 +409,7 @@ export default function App() {
         </header>
 
       {/* DETAILED GAME DASHBOARD GRID */}
-      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full p-3.5 sm:p-4 flex-1 flex flex-col gap-4 overflow-hidden min-h-0" id="game-dashboard-main-content">
+      <main className="max-w-7xl xl:max-w-[1440px] mx-auto w-full pt-5 pb-3 px-3.5 sm:p-4 flex-1 flex flex-col gap-4 overflow-hidden min-h-0" id="game-dashboard-main-content">
         
         {/* Help Panel floating absolute modal dialog so it doesn't take vertical space from the canvas! */}
         {showHelp && (
